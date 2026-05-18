@@ -66,75 +66,64 @@ function buscarTarea() {
     }
 }
 
+let modalEditar = new bootstrap.Modal(document.getElementById("modalEditar"));
 let btnEditar = document.getElementById("btnEditar");
-btnEditar.addEventListener("click", editarTareaGlobal);
-
-function editarTareaGlobal() {
-    if (tareaSeleccionada === null) {
-        Swal.fire("Aviso", "Por favor, haz clic en una tarea de la lista primero para seleccionarla.", "info");
-        return;
-    }
-
+btnEditar.addEventListener("click", buscarTareaEditar);
+let i = 0;
+function buscarTareaEditar() {
+  let tarea_buscada = document.getElementById("txtTarea").value;
+  i = tareas.findIndex((tarea)=> tarea == tarea_buscada);
+  if (i == -1){
     Swal.fire({
-        title: 'Editar tarea seleccionada',
-        input: 'text',
-        inputValue: tareas[tareaSeleccionada], 
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar',
-        inputValidator: (valor) => {
-            if (!valor.trim()) {
-                return '¡La tarea no puede estar vacía!';
-            }
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            tareas[tareaSeleccionada] = result.value.trim(); 
-            listarTareas(tareas); 
-            Swal.fire('¡Actualizado!', 'La tarea ha sido modificada.', 'success');
-        }
+      icon:"error",
+      title:"Oops...",
+      text: "No se encontraron tareas",
+      footer:""
     });
+  }
+
+  else {
+    let tituloModal = document.getElementById("modalEditarLabel");
+    tituloModal.textContent = "Editando" + tareas[i];
+    modalEditar.show();
+  }
 }
 
-let btnBorrar = document.getElementById("btnBorrar");
-btnBorrar.addEventListener("click", borrarTareaGlobal);
+let btnGuardar = document.getElementById("btnGuardar");
+btnGuardar.addEventListener("click", guardarTarea);
+function guardarTarea() {
+  let tarea_nueva = document.getElementById("tarea_nueva").value;
+  modalEditar.hide();
+  tareas[i] = tarea_nueva;
+  listarTareas(tareas);
+}
 
-function borrarTareaGlobal() {
-    let tareaABorrar = document.getElementById("txtTarea").value.trim();
-
-    if (tareaABorrar !== "") {
-        let index = tareas.indexOf(tareaABorrar);
-        if (index !== -1) {
-            ejecutarBorrado(index);
-            document.getElementById("txtTarea").value = "";
-        } else {
-            Swal.fire("Error", "No se encontró ninguna tarea con ese nombre exacto", "error");
-        }
-        return;
-    }
-
-    if (tareaSeleccionada !== null) {
-        ejecutarBorrado(tareaSeleccionada);
+let modalEliminar = new bootstrap.Modal(
+  document.getElementById("modalEliminar"))
+  let btnEliminar = document.getElementById("btnEliminar");
+  btnEliminar.addEventListener("click", eliminarTarea);
+  function eliminarTarea() {
+    let tarea_buscada = document.getElementById("txtTarea").value;
+    i = tareas.findIndex((tarea) => tarea == tarea_buscada);
+    if ( i == -1) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "No se encuentr la tarea para eliminar",
+        footer: "",
+      })
     } else {
-        Swal.fire("Aviso", "Escribe el nombre de una tarea o haz clic en una de la lista para borrarla.", "info");
+      let tituloModal = document.getElementById("modalEliminarLabel");
+      tituloModal.textContent = "Eliminando" + tareas[i]
+      modalEliminar.show();
     }
-}
+  }
 
-function ejecutarBorrado(index) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: `Vas a eliminar: "${tareas[index]}"`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, borrar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            tareas.splice(index, 1); 
-            listarTareas(tareas); 
-            Swal.fire('¡Eliminado!', 'La tarea ha sido borrada.', 'success');
-        }
-    });
-}
+  let btnDelete= document.getElementById("btnDelete")
+  btnDelete.addEventListener("click", deleteTarea)
+  function deleteTarea(){
+      modalEliminar.hide();
+      tareas=tareas.filter(t=>t != tareas[i]);
+      listarTareas(tareas)
+  }
+
